@@ -23,8 +23,13 @@ export default function ImportCsvModal({ categories }) {
     Papa.parse(selectedFile, {
       header: true,
       skipEmptyLines: true,
+      transformHeader: (header) => header.trim().toLowerCase(),
       complete: (results) => {
-        analyzeData(results.data)
+        try {
+          analyzeData(results.data)
+        } catch (err) {
+          setError("Error analyzing data: " + err.message)
+        }
       },
       error: (error) => {
         setError("Error parsing CSV: " + error.message)
@@ -39,19 +44,19 @@ export default function ImportCsvModal({ categories }) {
     let invalidCount = 0
 
     data.forEach(row => {
-      // Required columns: Date, Title, Amount, Type
-      if (!row.Date || !row.Title || !row.Amount || !row.Type) {
+      // Required columns: date, title, amount, type
+      if (!row.date || !row.title || !row.amount || !row.type) {
         invalidCount++
         return
       }
 
-      const amount = parseFloat(row.Amount)
+      const amount = parseFloat(row.amount)
       if (isNaN(amount)) {
         invalidCount++
         return
       }
 
-      const type = row.Type.toLowerCase().trim()
+      const type = row.type.toLowerCase().trim()
       if (type !== 'income' && type !== 'expense') {
         invalidCount++
         return
@@ -59,15 +64,15 @@ export default function ImportCsvModal({ categories }) {
 
       // Find matching category
       let category_id = null
-      if (row.Category) {
-        const catName = row.Category.trim().toLowerCase()
-        const matchedCat = categories.find(c => c.name.toLowerCase() === catName && c.type === type)
+      if (row.category) {
+        const catName = row.category.trim().toLowerCase()
+        const matchedCat = (categories || []).find(c => c.name.toLowerCase() === catName && c.type === type)
         if (matchedCat) {
           category_id = matchedCat.id
         }
       }
 
-      let parsedDate = row.Date
+      let parsedDate = row.date
       // basic date check
       if (new Date(parsedDate).toString() === 'Invalid Date') {
           invalidCount++
@@ -76,11 +81,11 @@ export default function ImportCsvModal({ categories }) {
 
       validRows.push({
         date: new Date(parsedDate).toISOString().split('T')[0], // ensure valid YYYY-MM-DD
-        title: row.Title.trim(),
+        title: row.title.trim(),
         amount: amount,
         type: type,
         category_id: category_id,
-        note: row.Note ? row.Note.trim() : null
+        note: row.note ? row.note.trim() : null
       })
 
       if (type === 'income') totalIncome += amount
