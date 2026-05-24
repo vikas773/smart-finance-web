@@ -57,7 +57,7 @@ export async function bulkAddTransactions(transactions) {
   const { error } = await supabase.from('transactions').insert(transactionsWithUserId)
   
   if (error) {
-    throw new Error(error.message)
+    return { error: error.message }
   }
 
   revalidatePath('/transactions')

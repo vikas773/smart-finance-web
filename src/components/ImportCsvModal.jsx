@@ -107,7 +107,10 @@ export default function ImportCsvModal({ categories }) {
     setError(null)
 
     try {
-      await bulkAddTransactions(parsedData)
+      const result = await bulkAddTransactions(parsedData)
+      if (result?.error) {
+        throw new Error(result.error)
+      }
       setIsOpen(false)
       setFile(null)
       setParsedData([])
