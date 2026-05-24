@@ -44,3 +44,25 @@ export async function deleteTransaction(formData) {
   revalidatePath('/dashboard')
   revalidatePath('/analytics')
 }
+
+export async function bulkAddTransactions(transactions) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const transactionsWithUserId = transactions.map(t => ({
+    ...t,
+    user_id: user.id
+  }))
+
+  const { error } = await supabase.from('transactions').insert(transactionsWithUserId)
+  
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  revalidatePath('/transactions')
+  revalidatePath('/dashboard')
+  revalidatePath('/analytics')
+  
+  return { success: true }
+}

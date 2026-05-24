@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { Plus, Trash2, ArrowUpCircle, ArrowDownCircle, Search } from 'lucide-react'
 import { addTransaction, deleteTransaction } from './actions'
 import { format } from 'date-fns'
+import ImportCsvModal from '@/components/ImportCsvModal'
 
 export default async function TransactionsPage({ searchParams }) {
   const supabase = await createClient()
@@ -31,11 +32,12 @@ export default async function TransactionsPage({ searchParams }) {
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
-      <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Transactions</h1>
           <p className="text-slate-400">Manage your income and expenses</p>
         </div>
+        <ImportCsvModal categories={categories} />
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
