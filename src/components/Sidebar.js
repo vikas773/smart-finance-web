@@ -98,9 +98,7 @@ export default function Sidebar({ user }) {
       >
         {/* LOGO */}
         <div className="flex items-center gap-3 px-6 py-6 border-b border-border">
-          <div className="w-8 h-8 rounded-[8px] bg-accent-green flex items-center justify-center">
-            <span className="text-[#000000] font-bold text-lg leading-none">₹</span>
-          </div>
+          <img src="/logo.png" alt="SmartFinance" className="w-8 h-8 rounded-[8px]" />
           <span className="text-[18px] font-bold text-text-primary tracking-tight">SmartFinance</span>
         </div>
 
