@@ -24,16 +24,18 @@ export default async function DashboardPage() {
   const currentMonthStr = format(now, 'yyyy-MM')
 
   // 1. Transactions for current month
-  const { data: monthTx } = await supabase
+  const { data: monthTxData } = await supabase
     .from('transactions')
     .select('*')
     .eq('user_id', user.id)
     .gte('date', startMonth)
     .lte('date', endMonth)
+  
+  const monthTx = monthTxData || []
 
   let income = 0
   let expense = 0
-  monthTx?.forEach((tx) => {
+  monthTx.forEach((tx) => {
     if (tx.type === 'income') income += Number(tx.amount)
     if (tx.type === 'expense') expense += Number(tx.amount)
   })
@@ -91,16 +93,17 @@ export default async function DashboardPage() {
     const mStart = startOfMonth(d).toISOString()
     const mEnd = endOfMonth(d).toISOString()
 
-    const { data: txs } = await supabase
+    const { data: txsData } = await supabase
       .from('transactions')
       .select('amount, type')
       .eq('user_id', user.id)
       .gte('date', mStart)
       .lte('date', mEnd)
 
+    const txs = txsData || []
     let mInc = 0
     let mExp = 0
-    txs?.forEach((tx) => {
+    txs.forEach((tx) => {
       if (tx.type === 'income') mInc += Number(tx.amount)
       if (tx.type === 'expense') mExp += Number(tx.amount)
     })
@@ -114,7 +117,7 @@ export default async function DashboardPage() {
 
   // 7. Category Expense Data (Current Month)
   const catExpenseMap = {}
-  monthTx?.filter(tx => tx.type === 'expense').forEach((tx) => {
+  monthTx.filter(tx => tx.type === 'expense').forEach((tx) => {
     if (!catExpenseMap[tx.category_id]) {
       catExpenseMap[tx.category_id] = 0
     }
@@ -130,11 +133,13 @@ export default async function DashboardPage() {
       .select('id, name, color')
       .in('id', catIds)
     
-    catData = cats.map(c => ({
-      name: c.name,
-      color: c.color,
-      total: catExpenseMap[c.id]
-    })).sort((a, b) => b.total - a.total).slice(0, 6)
+    if (cats) {
+      catData = cats.map(c => ({
+        name: c.name,
+        color: c.color,
+        total: catExpenseMap[c.id]
+      })).sort((a, b) => b.total - a.total).slice(0, 6)
+    }
   }
 
   return (

@@ -110,12 +110,12 @@ export default async function TransactionsPage({ searchParams }) {
                 >
                   <option value="">Select Category...</option>
                   <optgroup label="Expenses">
-                    {categories?.filter(c => c.type === 'expense').map(c => (
+                    {(categories || []).filter(c => c.type === 'expense').map(c => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </optgroup>
                   <optgroup label="Income">
-                    {categories?.filter(c => c.type === 'income').map(c => (
+                    {(categories || []).filter(c => c.type === 'income').map(c => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </optgroup>
