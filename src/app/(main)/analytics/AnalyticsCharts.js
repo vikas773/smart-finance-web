@@ -40,6 +40,7 @@ export default function AnalyticsCharts({ monthly, catBreak, incSrc, dailyLabels
   useEffect(() => {
     const isLight = document.documentElement.classList.contains('light')
     if (isLight) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setThemeTokens({
         border: '#e2e6f0',
         textMuted: '#4f5e78',

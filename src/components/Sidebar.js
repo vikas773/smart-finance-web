@@ -42,6 +42,7 @@ export default function Sidebar({ user }) {
   const supabase = createClient()
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLight(document.documentElement.classList.contains('light'))
   }, [])
 
