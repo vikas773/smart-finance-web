@@ -14,7 +14,7 @@ export default async function MainLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex">
+    <div className="min-h-screen bg-bg-primary flex">
       <Sidebar user={user} />
       <main className="flex-1 overflow-x-hidden min-w-0">
         {children}

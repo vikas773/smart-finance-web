@@ -2,32 +2,33 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
-  TrendingUp,
-  Grid,
-  Repeat,
-  Sliders,
-  CreditCard,
+  LayoutDashboard,
+  ArrowLeftRight,
+  PieChart,
+  RefreshCw,
   Target,
-  BarChart2,
+  TrendingUp,
   Tag,
   LogOut,
   Menu,
   X,
+  Sun,
+  Moon
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 
 const mainLinks = [
-  { name: 'Dashboard', href: '/dashboard', icon: Grid },
-  { name: 'Transactions', href: '/transactions', icon: Repeat },
-  { name: 'Budgets', href: '/budgets', icon: Sliders },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Transactions', href: '/transactions', icon: ArrowLeftRight },
+  { name: 'Budgets', href: '/budgets', icon: PieChart },
 ]
 
 const planningLinks = [
-  { name: 'Subscriptions', href: '/subscriptions', icon: CreditCard },
+  { name: 'Subscriptions', href: '/subscriptions', icon: RefreshCw },
   { name: 'Savings Goals', href: '/goals', icon: Target },
-  { name: 'Analytics', href: '/analytics', icon: BarChart2 },
+  { name: 'Analytics', href: '/analytics', icon: TrendingUp },
 ]
 
 const settingsLinks = [
@@ -37,7 +38,24 @@ const settingsLinks = [
 export default function Sidebar({ user }) {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
+  const [isLight, setIsLight] = useState(false)
   const supabase = createClient()
+
+  useEffect(() => {
+    setIsLight(document.documentElement.classList.contains('light'))
+  }, [])
+
+  const toggleTheme = () => {
+    if (isLight) {
+      document.documentElement.classList.remove('light')
+      localStorage.setItem('theme', 'dark')
+      setIsLight(false)
+    } else {
+      document.documentElement.classList.add('light')
+      localStorage.setItem('theme', 'light')
+      setIsLight(true)
+    }
+  }
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -51,13 +69,13 @@ export default function Sidebar({ user }) {
     return (
       <Link
         href={link.href}
-        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+        className={`flex items-center gap-3 px-3 py-0 h-[44px] rounded-[10px] transition-all duration-150 text-[14px] ${
           isActive
-            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30 font-medium'
-            : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+            ? 'bg-accent-green-muted text-accent-green font-semibold border-l-[3px] border-accent-green'
+            : 'text-text-secondary hover:text-text-primary hover:bg-bg-hover border-l-[3px] border-transparent'
         }`}
       >
-        <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+        <Icon className={`w-[18px] h-[18px] ${isActive ? 'text-accent-green' : 'text-text-secondary'}`} />
         {link.name}
       </Link>
     )
@@ -67,26 +85,28 @@ export default function Sidebar({ user }) {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-4 right-4 z-50 p-2 bg-slate-800 rounded-lg text-white"
+        className="md:hidden fixed top-4 right-4 z-50 p-2 bg-bg-secondary border border-border rounded-lg text-text-primary"
       >
         {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
 
       <div
-        className={`fixed md:sticky top-0 left-0 z-40 h-screen w-72 bg-slate-900 border-r border-slate-800 flex flex-col transition-transform duration-300 md:translate-x-0 ${
+        className={`fixed md:sticky top-0 left-0 z-40 h-screen w-[240px] bg-bg-secondary border-r border-border flex flex-col transition-transform duration-300 md:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center gap-3 px-6 py-8 border-b border-slate-800/50">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <TrendingUp className="w-6 h-6 text-white" />
+        {/* LOGO */}
+        <div className="flex items-center gap-3 px-6 py-6 border-b border-border">
+          <div className="w-8 h-8 rounded-[8px] bg-accent-green flex items-center justify-center">
+            <span className="text-[#000000] font-bold text-lg leading-none">₹</span>
           </div>
-          <span className="text-xl font-bold text-white tracking-tight">SmartFinance</span>
+          <span className="text-[18px] font-bold text-text-primary tracking-tight">SmartFinance</span>
         </div>
 
-        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-8 scrollbar-thin scrollbar-thumb-slate-800">
+        {/* NAVIGATION */}
+        <div className="flex-1 overflow-y-auto py-6 px-3 space-y-8 hide-scrollbar">
           <div>
-            <p className="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Main</p>
+            <p className="px-3 text-[10px] font-semibold text-text-muted uppercase tracking-[0.12em] mb-2">Main</p>
             <div className="space-y-1">
               {mainLinks.map((link) => (
                 <NavItem key={link.href} link={link} />
@@ -95,7 +115,7 @@ export default function Sidebar({ user }) {
           </div>
 
           <div>
-            <p className="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Planning</p>
+            <p className="px-3 text-[10px] font-semibold text-text-muted uppercase tracking-[0.12em] mb-2">Planning</p>
             <div className="space-y-1">
               {planningLinks.map((link) => (
                 <NavItem key={link.href} link={link} />
@@ -104,7 +124,7 @@ export default function Sidebar({ user }) {
           </div>
 
           <div>
-            <p className="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Settings</p>
+            <p className="px-3 text-[10px] font-semibold text-text-muted uppercase tracking-[0.12em] mb-2">Settings</p>
             <div className="space-y-1">
               {settingsLinks.map((link) => (
                 <NavItem key={link.href} link={link} />
@@ -113,24 +133,35 @@ export default function Sidebar({ user }) {
           </div>
         </div>
 
-        <div className="p-4 border-t border-slate-800 bg-slate-900/50">
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/50 mb-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-700 to-slate-600 flex items-center justify-center text-white font-bold shrink-0">
+        {/* BOTTOM SECTION */}
+        <div className="p-4 border-t border-border flex flex-col gap-4">
+          <div className="flex items-center justify-between px-2">
+            <span className="text-[11px] font-semibold text-text-muted tracking-wider">THEME</span>
+            <button 
+              onClick={toggleTheme}
+              className="w-[36px] h-[36px] rounded-full bg-bg-tertiary border border-border flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
+            >
+              {isLight ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-accent-purple flex items-center justify-center text-white font-semibold text-sm shrink-0">
               {user?.user_metadata?.full_name?.charAt(0)?.toUpperCase() || 'U'}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-white truncate">
+              <p className="text-sm font-medium text-text-primary truncate">
                 {user?.user_metadata?.full_name || 'User'}
               </p>
-              <p className="text-xs text-slate-400 truncate">{user?.email}</p>
+              <p className="text-[12px] text-text-secondary truncate">{user?.email}</p>
             </div>
           </div>
           
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
+            className="flex items-center gap-2 text-[13px] font-medium text-text-secondary hover:text-text-primary transition-colors px-1"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-[16px] h-[16px]" />
             Logout
           </button>
         </div>
@@ -139,7 +170,7 @@ export default function Sidebar({ user }) {
       {/* Overlay for mobile */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-30 md:hidden"
+          className="fixed inset-0 bg-bg-primary/80 backdrop-blur-sm z-30 md:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}

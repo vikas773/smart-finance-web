@@ -1,11 +1,12 @@
 import { createClient } from '@/utils/supabase/server'
 import {
-  ArrowDownCircle,
-  ArrowUpCircle,
-  DollarSign,
+  TrendingDown,
+  TrendingUp,
+  Wallet,
   Target,
   AlertCircle,
-  Inbox
+  Inbox,
+  ArrowRight
 } from 'lucide-react'
 import Link from 'next/link'
 import { startOfMonth, endOfMonth, subMonths, format } from 'date-fns'
@@ -49,42 +50,46 @@ export default async function DashboardPage() {
     .eq('status', 'active')
 
   // 3. Recent Transactions
-  const { data: recent } = await supabase
+  const { data: recentData } = await supabase
     .from('transactions')
     .select('*, categories(name, color)')
     .eq('user_id', user.id)
     .order('date', { ascending: false })
     .order('id', { ascending: false })
     .limit(8)
+    
+  const recent = recentData || []
 
   // 4. Budget Alerts
-  const { data: budgets } = await supabase
+  const { data: budgetsData } = await supabase
     .from('budgets')
     .select('*')
     .eq('user_id', user.id)
     .eq('month', currentMonthStr)
 
+  const budgets = budgetsData || []
   const budgetAlerts = []
-  if (budgets && monthTx) {
-    budgets.forEach((b) => {
-      const spent = monthTx
-        .filter((tx) => tx.category_id === b.category_id && tx.type === 'expense')
-        .reduce((sum, tx) => sum + Number(tx.amount), 0)
-      
-      const pct = b.monthly_limit > 0 ? Math.min((spent / b.monthly_limit) * 100, 100) : 0
-      if (pct >= b.alert_threshold) {
-        budgetAlerts.push({ ...b, spent, pct })
-      }
-    })
-  }
+  
+  budgets.forEach((b) => {
+    const spent = monthTx
+      .filter((tx) => tx.category_id === b.category_id && tx.type === 'expense')
+      .reduce((sum, tx) => sum + Number(tx.amount), 0)
+    
+    const pct = b.monthly_limit > 0 ? Math.min((spent / b.monthly_limit) * 100, 100) : 0
+    if (pct >= b.alert_threshold) {
+      budgetAlerts.push({ ...b, spent, pct })
+    }
+  })
 
   // 5. Active Goals List
-  const { data: goalsList } = await supabase
+  const { data: goalsListData } = await supabase
     .from('savings_goals')
     .select('*')
     .eq('user_id', user.id)
     .eq('status', 'active')
     .limit(3)
+    
+  const goalsList = goalsListData || []
 
   // 6. Chart Data (Last 6 months)
   const chartData = []
@@ -142,75 +147,75 @@ export default async function DashboardPage() {
     }
   }
 
+  const formatCurrency = (val) => Number(val).toLocaleString('en-IN', { maximumFractionDigits: 0 })
+
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8">
-      <header>
-        <h1 className="text-3xl font-bold text-white mb-2">
-          👋 Welcome back, {user.user_metadata?.full_name?.split(' ')[0] || 'User'}!
-        </h1>
-        <p className="text-slate-400">
-          {format(now, 'EEEE, MMMM d, yyyy')} · {format(now, 'MMM yyyy')} overview
-        </p>
+    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-300">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-[28px] font-semibold text-text-primary tracking-[-0.02em] mb-1">
+            Dashboard
+          </h1>
+          <p className="text-[14px] text-text-secondary">
+            Welcome back, {user.user_metadata?.full_name?.split(' ')[0] || 'User'}. Here is your financial overview.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="px-4 py-2 bg-bg-secondary border border-border rounded-full text-sm font-medium text-text-primary">
+            {format(now, 'MMM yyyy')}
+          </div>
+        </div>
       </header>
 
       {/* STAT CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-110" />
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500">
-              <ArrowDownCircle className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-400">Total Income</p>
-              <h3 className="text-2xl font-bold text-white">₹{income.toLocaleString()}</h3>
-            </div>
+        <div className="bg-bg-secondary border border-border rounded-[16px] p-5 lg:p-6 transition-transform hover:-translate-y-[2px] duration-200">
+          <div className="w-10 h-10 rounded-full bg-accent-green-muted flex items-center justify-center text-accent-green mb-4">
+            <TrendingUp className="w-5 h-5" />
           </div>
-          <p className="text-xs text-slate-500">This month</p>
+          <p className="text-[14px] font-medium text-text-secondary mb-1">Total Income</p>
+          <h3 className="text-[28px] font-medium font-mono text-text-primary">₹{formatCurrency(income)}</h3>
+          <p className="text-[13px] text-text-muted mt-2">This month</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-110" />
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500">
-              <ArrowUpCircle className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-400">Total Expenses</p>
-              <h3 className="text-2xl font-bold text-white">₹{expense.toLocaleString()}</h3>
-            </div>
+        <div className="bg-bg-secondary border border-border rounded-[16px] p-5 lg:p-6 transition-transform hover:-translate-y-[2px] duration-200">
+          <div className="w-10 h-10 rounded-full bg-accent-red-muted flex items-center justify-center text-accent-red mb-4">
+            <TrendingDown className="w-5 h-5" />
           </div>
-          <p className="text-xs text-slate-500">This month</p>
+          <p className="text-[14px] font-medium text-text-secondary mb-1">Total Expenses</p>
+          <h3 className="text-[28px] font-medium font-mono text-text-primary">₹{formatCurrency(expense)}</h3>
+          <p className="text-[13px] text-text-muted mt-2">This month</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-110" />
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
-              <DollarSign className="w-6 h-6" />
+        <div className="bg-bg-secondary border border-border rounded-[16px] p-5 lg:p-6 transition-transform hover:-translate-y-[2px] duration-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-full bg-accent-blue/10 flex items-center justify-center text-accent-blue">
+              <Wallet className="w-5 h-5" />
             </div>
-            <div>
-              <p className="text-sm font-medium text-slate-400">Net Balance</p>
-              <h3 className={`text-2xl font-bold ${balance >= 0 ? 'text-indigo-400' : 'text-red-400'}`}>
-                ₹{Math.abs(balance).toLocaleString()}
-              </h3>
-            </div>
+            {balance >= 0 ? (
+              <span className="px-2.5 py-1 bg-accent-green-muted text-accent-green text-xs font-semibold rounded-full border border-accent-green/20">
+                ↑ Surplus
+              </span>
+            ) : (
+              <span className="px-2.5 py-1 bg-accent-red-muted text-accent-red text-xs font-semibold rounded-full border border-accent-red/20">
+                ↓ Deficit
+              </span>
+            )}
           </div>
-          <p className="text-xs text-slate-500">{balance >= 0 ? '✓ Surplus' : '⚠ Deficit'}</p>
+          <p className="text-[14px] font-medium text-text-secondary mb-1">Net Balance</p>
+          <h3 className="text-[28px] font-medium font-mono text-text-primary">
+            ₹{formatCurrency(Math.abs(balance))}
+          </h3>
+          <p className="text-[13px] text-text-muted mt-2">This month</p>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-110" />
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center text-yellow-500">
-              <Target className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-400">Active Goals</p>
-              <h3 className="text-2xl font-bold text-white">{goalsCount || 0}</h3>
-            </div>
+        <div className="bg-bg-secondary border border-border rounded-[16px] p-5 lg:p-6 transition-transform hover:-translate-y-[2px] duration-200">
+          <div className="w-10 h-10 rounded-full bg-accent-amber/10 flex items-center justify-center text-accent-amber mb-4">
+            <Target className="w-5 h-5" />
           </div>
-          <p className="text-xs text-slate-500">Savings in progress</p>
+          <p className="text-[14px] font-medium text-text-secondary mb-1">Active Goals</p>
+          <h3 className="text-[28px] font-medium font-mono text-text-primary">{goalsCount || 0}</h3>
+          <p className="text-[13px] text-text-muted mt-2">Savings in progress</p>
         </div>
       </div>
 
@@ -225,29 +230,26 @@ export default async function DashboardPage() {
           
           {/* Budget Alerts */}
           {budgetAlerts.length > 0 && (
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 text-yellow-500" />
+            <div className="bg-bg-secondary border border-border rounded-[16px] p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-[16px] font-semibold text-text-primary flex items-center gap-2">
+                  <AlertCircle className="w-[18px] h-[18px] text-accent-amber" />
                   Budget Alerts
                 </h3>
-                <span className="px-2.5 py-1 bg-yellow-500/10 text-yellow-500 text-xs font-semibold rounded-full border border-yellow-500/20">
-                  {budgetAlerts.length} Alert{budgetAlerts.length > 1 ? 's' : ''}
-                </span>
               </div>
-              <div className="p-6 space-y-5">
+              <div className="space-y-6">
                 {budgetAlerts.map((b) => {
-                  const colorClass = b.pct >= 100 ? 'bg-red-500' : (b.pct >= 80 ? 'bg-yellow-500' : 'bg-green-500')
+                  const colorClass = b.pct >= 100 ? 'bg-accent-red' : (b.pct >= 80 ? 'bg-accent-amber' : 'bg-accent-green')
                   return (
                     <div key={b.id}>
                       <div className="flex justify-between text-sm mb-2">
-                        <span className="font-medium text-slate-200">{b.category_name}</span>
-                        <span className="text-slate-400">
-                          ₹{b.spent.toLocaleString()} / ₹{Number(b.monthly_limit).toLocaleString()}
+                        <span className="font-medium text-text-primary">{b.category_name}</span>
+                        <span className="text-text-secondary font-mono text-[13px]">
+                          ₹{formatCurrency(b.spent)} / ₹{formatCurrency(b.monthly_limit)}
                         </span>
                       </div>
-                      <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                        <div className={`h-full ${colorClass} transition-all duration-500`} style={{ width: `${b.pct}%` }} />
+                      <div className="h-[6px] w-full bg-bg-tertiary rounded-full overflow-hidden">
+                        <div className={`h-full ${colorClass} transition-all duration-700`} style={{ width: `${b.pct}%` }} />
                       </div>
                     </div>
                   )
@@ -257,32 +259,32 @@ export default async function DashboardPage() {
           )}
 
           {/* Savings Goals */}
-          {goalsList && goalsList.length > 0 && (
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <Target className="w-5 h-5 text-indigo-400" />
+          {goalsList.length > 0 && (
+            <div className="bg-bg-secondary border border-border rounded-[16px] p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-[16px] font-semibold text-text-primary flex items-center gap-2">
+                  <Target className="w-[18px] h-[18px] text-accent-blue" />
                   Savings Goals
                 </h3>
-                <Link href="/goals" className="text-sm text-indigo-400 hover:text-indigo-300 font-medium">View All</Link>
+                <Link href="/goals" className="text-[13px] text-text-secondary hover:text-text-primary font-medium flex items-center gap-1">
+                  View All <ArrowRight className="w-3 h-3" />
+                </Link>
               </div>
-              <div className="p-6 space-y-6">
+              <div className="space-y-6">
                 {goalsList.map((g) => {
                   const pct = g.target_amount > 0 ? Math.min((g.saved_amount / g.target_amount) * 100, 100) : 0
                   return (
                     <div key={g.id}>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="font-semibold text-slate-200">{g.title}</span>
-                        <span className="text-indigo-400 font-medium">{Math.round(pct)}%</span>
+                      <div className="flex justify-between text-[14px] mb-2">
+                        <span className="font-medium text-text-primary">{g.title}</span>
+                        <span className="text-text-secondary font-mono">{Math.round(pct)}%</span>
                       </div>
-                      <div className="flex justify-between text-xs text-slate-500 mb-2">
-                        <span>₹{Number(g.saved_amount).toLocaleString()} saved</span>
-                        <span>₹{Number(g.target_amount).toLocaleString()} goal</span>
+                      <div className="h-[8px] w-full bg-bg-tertiary rounded-full overflow-hidden mb-2">
+                        <div className="h-full bg-accent-green transition-all duration-700" style={{ width: `${pct}%` }} />
                       </div>
-                      <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden shadow-inner">
-                        <div className="h-full bg-indigo-500 transition-all duration-500 relative overflow-hidden" style={{ width: `${pct}%` }}>
-                          <div className="absolute inset-0 bg-white/20 w-1/2 animate-[shimmer_2s_infinite]" />
-                        </div>
+                      <div className="flex justify-between text-[12px] text-text-muted font-mono">
+                        <span>₹{formatCurrency(g.saved_amount)}</span>
+                        <span>₹{formatCurrency(g.target_amount)}</span>
                       </div>
                     </div>
                   )
@@ -293,43 +295,54 @@ export default async function DashboardPage() {
         </div>
 
         {/* RIGHT COL: Recent Transactions */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col">
-          <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-white">Recent Transactions</h3>
-            <Link href="/transactions" className="text-sm text-indigo-400 hover:text-indigo-300 font-medium">View All</Link>
+        <div className="bg-bg-secondary border border-border rounded-[16px] overflow-hidden flex flex-col">
+          <div className="px-6 py-5 border-b border-border flex items-center justify-between">
+            <h3 className="text-[16px] font-semibold text-text-primary">Recent Transactions</h3>
+            <Link href="/transactions" className="text-[13px] text-text-secondary hover:text-text-primary font-medium flex items-center gap-1">
+              View All <ArrowRight className="w-3 h-3" />
+            </Link>
           </div>
           
           <div className="flex-1 p-0">
-            {!recent || recent.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full py-12 text-slate-500">
-                <Inbox className="w-12 h-12 mb-3 text-slate-600" />
-                <p className="font-medium">No transactions yet</p>
-                <p className="text-sm">Add your first transaction</p>
+            {recent.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full py-16 text-text-muted">
+                <div className="w-16 h-16 rounded-full bg-bg-tertiary flex items-center justify-center mb-4">
+                  <Inbox className="w-8 h-8 text-text-muted" />
+                </div>
+                <p className="font-medium text-[15px] text-text-primary">No transactions yet</p>
+                <p className="text-[13px] mt-1">Your recent activity will appear here.</p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-800/50">
+              <div className="divide-y divide-border">
                 {recent.map((t) => (
-                  <div key={t.id} className="flex items-center justify-between px-6 py-4 hover:bg-slate-800/20 transition-colors">
+                  <div key={t.id} className="flex items-center justify-between px-6 py-4 hover:bg-bg-hover transition-colors cursor-pointer">
                     <div className="flex items-center gap-4">
                       <div 
-                        className="w-10 h-10 rounded-full flex items-center justify-center bg-opacity-20 shrink-0"
-                        style={{ backgroundColor: `${t.categories?.color || '#6366f1'}22` }}
+                        className="w-10 h-10 rounded-full flex items-center justify-center bg-opacity-10 shrink-0 border"
+                        style={{ 
+                          backgroundColor: `${t.categories?.color || '#8b95a9'}15`,
+                          borderColor: `${t.categories?.color || '#8b95a9'}30`,
+                          color: t.categories?.color || '#8b95a9'
+                        }}
                       >
                         {t.type === 'income' ? (
-                          <ArrowDownCircle className="w-5 h-5 text-green-500" />
+                          <TrendingUp className="w-5 h-5" />
                         ) : (
-                          <ArrowUpCircle className="w-5 h-5 text-red-500" />
+                          <TrendingDown className="w-5 h-5" />
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-slate-200">{t.title}</p>
-                        <p className="text-xs text-slate-500">
-                          {t.categories?.name || 'Uncategorized'} · {format(new Date(t.date), 'dd MMM')}
+                        <p className="font-medium text-[15px] text-text-primary">{t.title}</p>
+                        <p className="text-[12px] text-text-secondary mt-0.5">
+                          {format(new Date(t.date), 'dd MMM yyyy')}
                         </p>
                       </div>
                     </div>
-                    <div className={`font-semibold ${t.type === 'income' ? 'text-green-400' : 'text-red-400'}`}>
-                      {t.type === 'income' ? '+' : '-'}₹{Number(t.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    <div className="text-right">
+                      <div className={`font-mono font-medium text-[15px] ${t.type === 'income' ? 'text-accent-green' : 'text-text-primary'}`}>
+                        {t.type === 'income' ? '+' : '-'}₹{formatCurrency(t.amount)}
+                      </div>
+                      <p className="text-[12px] text-text-muted mt-0.5">{t.categories?.name || 'Uncategorized'}</p>
                     </div>
                   </div>
                 ))}
