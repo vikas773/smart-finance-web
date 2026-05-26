@@ -6,7 +6,7 @@ export default async function CategoriesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: categories } = await supabase
+  const { data: categoriesData } = await supabase
     .from('categories')
     .select(`
       *,
@@ -16,63 +16,65 @@ export default async function CategoriesPage() {
     .order('type', { ascending: false })
     .order('name')
 
+  const categories = categoriesData || []
+
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Categories</h1>
-        <p className="text-slate-400">Manage your income and expense categories</p>
+    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-300">
+      <header>
+        <h1 className="text-[28px] font-semibold text-text-primary tracking-[-0.02em] mb-1">Categories</h1>
+        <p className="text-[14px] text-text-secondary">Manage your income and expense categories</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* ADD CATEGORY FORM */}
         <div className="lg:col-span-1">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sticky top-6">
-            <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-              <Plus className="w-5 h-5 text-indigo-400" />
+          <div className="bg-bg-secondary border border-border rounded-[16px] p-6 sticky top-6">
+            <h3 className="text-[16px] font-semibold text-text-primary mb-6 flex items-center gap-2">
+              <Plus className="w-[18px] h-[18px] text-accent-green" />
               New Category
             </h3>
             
-            <form action={addCategory} className="space-y-4">
+            <form action={addCategory} className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <label className="cursor-pointer">
                   <input type="radio" name="type" value="expense" className="peer sr-only" defaultChecked />
-                  <div className="py-2.5 px-4 text-center text-sm font-medium rounded-xl border border-slate-700 bg-slate-800/50 text-slate-400 peer-checked:border-red-500/50 peer-checked:bg-red-500/10 peer-checked:text-red-400 transition-all">
+                  <div className="py-2.5 px-4 text-center text-[13px] font-medium rounded-[10px] border border-border bg-bg-tertiary text-text-secondary peer-checked:border-accent-red peer-checked:bg-accent-red-muted peer-checked:text-accent-red transition-all">
                     Expense
                   </div>
                 </label>
                 <label className="cursor-pointer">
                   <input type="radio" name="type" value="income" className="peer sr-only" />
-                  <div className="py-2.5 px-4 text-center text-sm font-medium rounded-xl border border-slate-700 bg-slate-800/50 text-slate-400 peer-checked:border-green-500/50 peer-checked:bg-green-500/10 peer-checked:text-green-400 transition-all">
+                  <div className="py-2.5 px-4 text-center text-[13px] font-medium rounded-[10px] border border-border bg-bg-tertiary text-text-secondary peer-checked:border-accent-green peer-checked:bg-accent-green-muted peer-checked:text-accent-green transition-all">
                     Income
                   </div>
                 </label>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1.5">Category Name</label>
+                <label className="block text-[13px] font-medium text-text-secondary mb-1.5">Category Name</label>
                 <input 
                   type="text" 
                   name="name" 
                   required 
                   placeholder="e.g., Entertainment"
-                  className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700 focus:border-indigo-500 rounded-xl text-white placeholder-slate-500 outline-none transition-all"
+                  className="w-full px-4 h-[48px] bg-bg-tertiary border border-border focus:border-accent-green focus:shadow-[0_0_0_3px_var(--accent-green-muted)] rounded-[10px] text-text-primary placeholder:text-text-muted text-[14px] outline-none transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1.5">Color</label>
+                <label className="block text-[13px] font-medium text-text-secondary mb-1.5">Color</label>
                 <input 
                   type="color" 
                   name="color" 
-                  defaultValue="#6366f1"
-                  className="w-full h-12 px-2 py-1 bg-slate-800/50 border border-slate-700 focus:border-indigo-500 rounded-xl text-white cursor-pointer"
+                  defaultValue="#00d09c"
+                  className="w-full h-12 px-2 py-1 bg-bg-tertiary border border-border focus:border-accent-green focus:shadow-[0_0_0_3px_var(--accent-green-muted)] rounded-[10px] text-text-primary cursor-pointer transition-all"
                 />
               </div>
 
               <button 
                 type="submit"
-                className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-lg shadow-indigo-500/25 transition-all"
+                className="w-full h-[48px] bg-accent-green hover:brightness-110 active:scale-[0.98] text-[#000000] text-[14px] font-semibold rounded-[10px] transition-all"
               >
                 Save Category
               </button>
@@ -82,34 +84,35 @@ export default async function CategoriesPage() {
 
         {/* CATEGORIES LIST */}
         <div className="lg:col-span-2">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-800">
-              <h3 className="text-lg font-semibold text-white">Your Categories</h3>
+          <div className="bg-bg-secondary border border-border rounded-[16px] overflow-hidden">
+            <div className="px-6 py-4 border-b border-border">
+              <h3 className="text-[16px] font-semibold text-text-primary">Your Categories</h3>
             </div>
 
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {!categories || categories.length === 0 ? (
-                <div className="col-span-full py-12 text-center text-slate-500">
-                  <Search className="w-12 h-12 mx-auto mb-3 text-slate-600" />
-                  <p>No categories found.</p>
+              {categories.length === 0 ? (
+                <div className="col-span-full py-16 flex flex-col items-center justify-center text-text-muted bg-bg-secondary border border-border rounded-[16px]">
+                  <div className="w-16 h-16 rounded-full bg-bg-tertiary flex items-center justify-center mb-4">
+                    <Search className="w-8 h-8 text-text-muted" />
+                  </div>
+                  <p className="font-medium text-[15px] text-text-primary">No categories found</p>
                 </div>
               ) : (
                 categories.map(c => (
-                  <div key={c.id} className="flex items-center justify-between p-4 rounded-xl border border-slate-800 bg-slate-800/30 hover:bg-slate-800/60 transition-colors group">
+                  <div key={c.id} className="flex items-center justify-between p-4 rounded-[12px] border border-border bg-bg-tertiary hover:bg-bg-hover transition-colors group">
                     <div className="flex items-center gap-3">
                       <div 
-                        className="w-10 h-10 rounded-full flex items-center justify-center bg-opacity-20 shrink-0 shadow-inner"
-                        style={{ backgroundColor: `${c.color}22` }}
+                        className="w-10 h-10 rounded-[10px] flex items-center justify-center shrink-0 border border-border-subtle shadow-sm bg-white"
                       >
                         <Tag className="w-5 h-5" style={{ color: c.color }} />
                       </div>
                       <div>
-                        <p className="font-semibold text-slate-200">{c.name}</p>
+                        <p className="font-semibold text-[15px] text-text-primary">{c.name}</p>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${c.type === 'income' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                          <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border ${c.type === 'income' ? 'bg-accent-green-muted text-accent-green border-accent-green/20' : 'bg-accent-red-muted text-accent-red border-accent-red/20'}`}>
                             {c.type}
                           </span>
-                          <span className="text-xs text-slate-500">
+                          <span className="text-[12px] text-text-muted">
                             {c.transactions?.[0]?.count || 0} usage
                           </span>
                         </div>
@@ -120,10 +123,10 @@ export default async function CategoriesPage() {
                       <input type="hidden" name="id" value={c.id} />
                       <button 
                         type="submit"
-                        className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
+                        className="p-2 text-text-muted hover:text-accent-red hover:bg-accent-red-muted rounded-[8px] opacity-0 group-hover:opacity-100 transition-all"
                         title="Delete category"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-[16px] h-[16px]" />
                       </button>
                     </form>
                   </div>

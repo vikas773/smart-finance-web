@@ -174,7 +174,10 @@ export default async function DashboardPage() {
             <TrendingUp className="w-5 h-5" />
           </div>
           <p className="text-[14px] font-medium text-text-secondary mb-1">Total Income</p>
-          <h3 className="text-[28px] font-medium font-mono text-text-primary">₹{formatCurrency(income)}</h3>
+          <h3 className="font-bold font-mono text-accent-green flex items-baseline">
+            <span className="text-[20px] mr-[2px]">₹</span>
+            <span className="text-[32px] leading-none">{formatCurrency(income)}</span>
+          </h3>
           <p className="text-[13px] text-text-muted mt-2">This month</p>
         </div>
 
@@ -183,7 +186,10 @@ export default async function DashboardPage() {
             <TrendingDown className="w-5 h-5" />
           </div>
           <p className="text-[14px] font-medium text-text-secondary mb-1">Total Expenses</p>
-          <h3 className="text-[28px] font-medium font-mono text-text-primary">₹{formatCurrency(expense)}</h3>
+          <h3 className="font-bold font-mono text-accent-red flex items-baseline">
+            <span className="text-[20px] mr-[2px]">₹</span>
+            <span className="text-[32px] leading-none">{formatCurrency(expense)}</span>
+          </h3>
           <p className="text-[13px] text-text-muted mt-2">This month</p>
         </div>
 
@@ -203,8 +209,9 @@ export default async function DashboardPage() {
             )}
           </div>
           <p className="text-[14px] font-medium text-text-secondary mb-1">Net Balance</p>
-          <h3 className="text-[28px] font-medium font-mono text-text-primary">
-            ₹{formatCurrency(Math.abs(balance))}
+          <h3 className="font-bold font-mono text-text-primary flex items-baseline">
+            <span className="text-[20px] mr-[2px]">₹</span>
+            <span className="text-[32px] leading-none">{formatCurrency(Math.abs(balance))}</span>
           </h3>
           <p className="text-[13px] text-text-muted mt-2">This month</p>
         </div>
@@ -214,7 +221,7 @@ export default async function DashboardPage() {
             <Target className="w-5 h-5" />
           </div>
           <p className="text-[14px] font-medium text-text-secondary mb-1">Active Goals</p>
-          <h3 className="text-[28px] font-medium font-mono text-text-primary">{goalsCount || 0}</h3>
+          <h3 className="font-bold font-mono text-text-primary text-[32px] leading-none">{goalsCount || 0}</h3>
           <p className="text-[13px] text-text-muted mt-2">Savings in progress</p>
         </div>
       </div>
