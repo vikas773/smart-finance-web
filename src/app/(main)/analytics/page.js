@@ -124,17 +124,23 @@ export default async function AnalyticsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-bg-secondary border border-border rounded-[16px] p-6 transition-transform hover:-translate-y-[2px] duration-200">
           <p className="text-[14px] font-medium text-text-secondary mb-1">Avg Monthly Income</p>
-          <h3 className="text-[28px] font-medium font-mono text-text-primary">₹{formatCurrency(avgIncome)}</h3>
+          <h3 className="font-bold font-mono text-accent-green flex items-baseline">
+            <span className="text-[20px] mr-[2px]">₹</span>
+            <span className="text-[32px] leading-none">{formatCurrency(avgIncome)}</span>
+          </h3>
           <p className="text-[13px] text-text-muted mt-2">12-month average</p>
         </div>
         <div className="bg-bg-secondary border border-border rounded-[16px] p-6 transition-transform hover:-translate-y-[2px] duration-200">
           <p className="text-[14px] font-medium text-text-secondary mb-1">Avg Monthly Expense</p>
-          <h3 className="text-[28px] font-medium font-mono text-text-primary">₹{formatCurrency(avgExpense)}</h3>
+          <h3 className="font-bold font-mono text-accent-red flex items-baseline">
+            <span className="text-[20px] mr-[2px]">₹</span>
+            <span className="text-[32px] leading-none">{formatCurrency(avgExpense)}</span>
+          </h3>
           <p className="text-[13px] text-text-muted mt-2">12-month average</p>
         </div>
         <div className="bg-bg-secondary border border-border rounded-[16px] p-6 transition-transform hover:-translate-y-[2px] duration-200">
           <p className="text-[14px] font-medium text-text-secondary mb-1">Savings Rate</p>
-          <h3 className="text-[28px] font-medium font-mono text-accent-blue">{savingsRate.toFixed(1)}%</h3>
+          <h3 className="font-bold font-mono text-accent-blue text-[32px] leading-none">{savingsRate.toFixed(1)}%</h3>
           <p className="text-[13px] text-text-muted mt-2">Income saved on avg</p>
         </div>
       </div>

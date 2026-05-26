@@ -149,10 +149,10 @@ export default async function GoalsPage() {
 
                       {/* Bottom Row */}
                       <div className="flex justify-between items-end mb-5">
-                        <div className="text-[13px] text-text-secondary font-mono">
-                          <span className="text-text-primary font-medium text-[15px]">₹{formatCurrency(g.saved_amount)}</span>
-                          <span className="mx-1">/</span>
-                          <span>₹{formatCurrency(g.target_amount)}</span>
+                        <div className="flex items-baseline gap-1.5 text-[13px] text-text-secondary font-mono">
+                          <span className="font-bold text-[16px] text-accent-green flex items-baseline"><span className="text-[11px] mr-[1px]">₹</span>{formatCurrency(g.saved_amount)}</span>
+                          <span>/</span>
+                          <span className="flex items-baseline"><span className="text-[11px] mr-[1px]">₹</span>{formatCurrency(g.target_amount)}</span>
                         </div>
                         <div className={`text-[16px] font-bold font-mono ${isCompleted ? 'text-accent-green' : 'text-text-primary'}`}>
                           {Math.round(pct)}%

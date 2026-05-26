@@ -186,8 +186,10 @@ export default async function BudgetsPage() {
                       <div className={`text-[20px] font-bold font-mono ${textColor}`}>
                         {Math.round(pct)}%
                       </div>
-                      <div className="text-[13px] text-text-secondary font-mono">
-                        <span className="text-text-primary font-medium">₹{formatCurrency(b.spent)}</span> / ₹{formatCurrency(b.monthly_limit)}
+                      <div className="flex items-baseline gap-1.5 text-[13px] text-text-secondary font-mono">
+                        <span className="font-bold text-[16px] text-accent-red flex items-baseline"><span className="text-[11px] mr-[1px]">₹</span>{formatCurrency(b.spent)}</span>
+                        <span>/</span>
+                        <span className="flex items-baseline"><span className="text-[11px] mr-[1px]">₹</span>{formatCurrency(b.monthly_limit)}</span>
                       </div>
                     </div>
 

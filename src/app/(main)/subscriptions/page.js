@@ -163,7 +163,7 @@ export default async function SubscriptionsPage() {
                       </div>
                       
                       <div className="flex items-end gap-2 mb-4">
-                        <span className="text-[20px] font-mono font-medium text-accent-red leading-none">₹{formatCurrency(s.amount)}</span>
+                        <span className="font-bold text-[22px] font-mono text-accent-red flex items-baseline leading-none"><span className="text-[14px] mr-[2px]">₹</span>{formatCurrency(s.amount)}</span>
                         <span className="text-[12px] text-text-secondary capitalize px-2 py-0.5 rounded-full bg-bg-tertiary border border-border">{s.billing_cycle}</span>
                       </div>
                     </div>

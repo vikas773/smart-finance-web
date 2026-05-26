@@ -221,8 +221,9 @@ export default async function TransactionsPage({ searchParams }) {
                     </div>
                     
                     <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                      <div className={`font-mono font-medium text-[16px] ${t.type === 'income' ? 'text-accent-green' : 'text-text-primary'}`}>
-                        {t.type === 'income' ? '+' : '-'}₹{formatCurrency(t.amount)}
+                      <div className={`font-bold font-mono flex items-baseline ${t.type === 'income' ? 'text-accent-green' : 'text-accent-red'}`}>
+                        <span className="text-[13px] mr-[2px]">{t.type === 'income' ? '+' : '-'}₹</span>
+                        <span className="text-[18px] leading-none">{formatCurrency(t.amount)}</span>
                       </div>
                       <form action={deleteTransaction} className="sm:opacity-0 group-hover:opacity-100 transition-opacity">
                         <input type="hidden" name="id" value={t.id} />
