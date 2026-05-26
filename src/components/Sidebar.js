@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import {
@@ -98,7 +99,7 @@ export default function Sidebar({ user }) {
       >
         {/* LOGO */}
         <div className="flex items-center gap-3 px-6 py-6 border-b border-border">
-          <img src="/logo.png" alt="SmartFinance" className="w-8 h-8 rounded-[8px]" />
+          <Image src="/logo.png" alt="SmartFinance" width={32} height={32} className="w-8 h-8 rounded-[8px]" />
           <span className="text-[18px] font-bold text-text-primary tracking-tight">SmartFinance</span>
         </div>
 

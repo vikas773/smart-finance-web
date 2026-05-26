@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, Suspense, useEffect } from 'react'
+import Image from 'next/image'
 import { Mail, Lock, User, ArrowRight, AlertCircle, Sun, Moon } from 'lucide-react'
 import { login, signup } from './actions'
 import { useSearchParams } from 'next/navigation'
@@ -12,6 +13,7 @@ function LoginContent() {
   const error = searchParams.get('error')
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLight(document.documentElement.classList.contains('light'))
   }, [])
 
@@ -41,7 +43,7 @@ function LoginContent() {
       <div className="relative w-full max-w-[420px]">
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-[72px] h-[72px] rounded-[16px] shadow-lg mb-6 bg-white p-2">
-            <img src="/logo.png" alt="SmartFinance Logo" className="w-full h-full object-contain rounded-[8px]" />
+            <Image src="/logo.png" alt="SmartFinance Logo" width={56} height={56} className="w-full h-full object-contain rounded-[8px]" />
           </div>
           <h1 className="text-[32px] font-bold text-text-primary mb-2 tracking-tight">SmartFinance</h1>
           <p className="text-[15px] text-text-secondary font-medium">Track · Budget · Achieve Goals</p>
